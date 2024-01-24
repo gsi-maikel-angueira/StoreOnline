@@ -1,0 +1,15 @@
+# POST Order
+POST {{server}}/api/orders
+Content-Type: application/json
+
+// CreateOrderCommand
+{
+   "OrderId" : 1,
+   "CustomerId" : 1,
+   "Products" : [
+     {
+       "ProductId" : 2,
+       "Quantity" : 5
+     }
+   ]
+}
