@@ -15,30 +15,31 @@ class UpdateOrderServices(IApplicationDbContext applicationDbContext) : ICreateO
         }
         if (currentOrder.CustomerId != request.CustomerId)
         {
-            throw new UnsupportedOrderException("The Order cannot be change the customer");
+            throw new UnsupportedOrderException("The Order's customer cannot be changed");
         }
-        
-        AddOrUpdateOrder(request, currentOrder);
-        CheckAndDeleteProducts(request, currentOrder);
+
+        AddOrUpdateOrderProducts(request, currentOrder);
+        DeleteOrderProducts(request, currentOrder);
         return currentOrder;
     }
 
-    private void CheckAndDeleteProducts(CreateOrderCommand request, Order currentOrder)
+    private void DeleteOrderProducts(CreateOrderCommand request, Order currentOrder)
     {
         List<OrderDetail> deletedOrderDetails = new();
         List<OrderDetail> orderDetails = applicationDbContext.OrderDetails.Where(order => order.OrderId == currentOrder.Id).ToList();
         orderDetails.ForEach(orderDetail =>
         {
-            if (request.Products.All(p => orderDetail.ProductId != p.ProductId))
+            if (request.Products.Any(p => orderDetail.ProductId == p.ProductId))
             {
-                Product? currentProduct = applicationDbContext.Products.Find(orderDetail.ProductId);
-                if (currentProduct != null)
-                {
-                    currentProduct.Stock += orderDetail.Quantity;
-                }
-
-                deletedOrderDetails.Add(orderDetail);
+                return;
             }
+
+            Product? currentProduct = applicationDbContext.Products.Find(orderDetail.ProductId);
+            if (currentProduct != null)
+            {
+                currentProduct.Stock += orderDetail.Quantity;
+            }
+            deletedOrderDetails.Add(orderDetail);
         });
         deletedOrderDetails.ForEach(orderDetail =>
         {
@@ -46,11 +47,12 @@ class UpdateOrderServices(IApplicationDbContext applicationDbContext) : ICreateO
         });
     }
 
-    private void AddOrUpdateOrder(CreateOrderCommand request, Order currentOrder)
+    private void AddOrUpdateOrderProducts(CreateOrderCommand request, Order currentOrder)
     {
         request.Products.ForEach(productDto =>
         {
-            OrderDetail? orderDetail = currentOrder.OrderDetails.Find(o => o.ProductId == productDto.ProductId);
+            OrderDetail? orderDetail = applicationDbContext.OrderDetails.FirstOrDefault(
+                od => od.OrderId == currentOrder.Id && od.ProductId == productDto.ProductId);
             Product? currentProduct = applicationDbContext.Products.Find(productDto.ProductId);
             if (orderDetail == null)
             {
@@ -84,6 +86,7 @@ class UpdateOrderServices(IApplicationDbContext applicationDbContext) : ICreateO
                         throw new ProductExceedLimitOnStockException("Product exceed the limit on stock");
                     }
 
+                    orderDetail.Quantity = productDto.Quantity;
                     currentProduct.Stock -= value;
                 }
             }

@@ -6,7 +6,7 @@ public class OrderDetail : BaseEntity
 {
     public int? OrderId { get; set; }
     public int? ProductId { get; set; }
-    public required int Quantity { get; init; }
+    public int Quantity { get; set; }
 
     public Order? Order { get; set; }
     public Product? Product { get; set; }

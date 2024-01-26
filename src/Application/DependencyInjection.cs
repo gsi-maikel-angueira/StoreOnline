@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using StoreOnline.Application.Batch.Commands;
 using StoreOnline.Application.Common.Behaviours;
 
 namespace StoreOnline.Application;
@@ -17,7 +18,7 @@ public static class DependencyInjection
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
         });
-
+        
         return services;
     }
 }

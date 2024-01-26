@@ -2,8 +2,10 @@
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StoreOnline.Application.Batch.Commands;
 using StoreOnline.Application.Common.Interfaces;
 using StoreOnline.Infrastructure.Data;
+using StoreOnline.Infrastructure.Data.Configurations;
 
 namespace StoreOnline.Infrastructure;
 
@@ -21,9 +23,13 @@ public static class DependencyInjection
             options.UseSqlite(connectionString);
         });
 
+
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<ApplicationDbContextInitializer>();
-
+        services.AddScoped<AppDbConnectionFactory>();
+        services.AddScoped<SaveJobTimerCallback>();
+        services.AddScoped<ScheduleJobManager>();
+        services.AddScoped<IDbContextFactory>(provider => provider.GetRequiredService<AppDbConnectionFactory>());
         services.AddSingleton(TimeProvider.System);
         return services;
     }

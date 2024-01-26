@@ -8,8 +8,12 @@ Content-Type: application/json
    "CustomerId" : 1,
    "Products" : [
      {
-       "ProductId" : 2,
+       "ProductId" : 1,
        "Quantity" : 5
+     },
+     {
+      "ProductId" : 2,
+      "Quantity" : 5
      }
    ]
 }
