@@ -2,11 +2,11 @@ using StoreOnline.Application.Common.Interfaces;
 using StoreOnline.Domain.Entities;
 using StoreOnline.Domain.Exceptions;
 
-namespace StoreOnline.Application.Orders.Commands.CreateOrder;
+namespace StoreOnline.Application.Orders.Commands.UpdateOrder;
 
-class UpdateOrderServices(IApplicationDbContext applicationDbContext) : ICreateOrderServices
+public class UpdateOrderServices(IApplicationDbContext applicationDbContext) : ICreateOrderServices<UpdateOrderCommand>
 {
-    public Order CreateOrUpdate(CreateOrderCommand request)
+    public Order CreateOrUpdate(UpdateOrderCommand request)
     {
         Order? currentOrder = applicationDbContext.Orders.Find(request.OrderId);
         if (currentOrder == null)
@@ -23,7 +23,7 @@ class UpdateOrderServices(IApplicationDbContext applicationDbContext) : ICreateO
         return currentOrder;
     }
 
-    private void DeleteOrderProducts(CreateOrderCommand request, Order currentOrder)
+    private void DeleteOrderProducts(UpdateOrderCommand request, Order currentOrder)
     {
         List<OrderDetail> deletedOrderDetails = new();
         List<OrderDetail> orderDetails = applicationDbContext.OrderDetails.Where(order => order.OrderId == currentOrder.Id).ToList();
@@ -47,7 +47,7 @@ class UpdateOrderServices(IApplicationDbContext applicationDbContext) : ICreateO
         });
     }
 
-    private void AddOrUpdateOrderProducts(CreateOrderCommand request, Order currentOrder)
+    private void AddOrUpdateOrderProducts(UpdateOrderCommand request, Order currentOrder)
     {
         request.Products.ForEach(productDto =>
         {

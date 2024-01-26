@@ -1,20 +1,22 @@
 ﻿using StoreOnline.Application.Common.Interfaces;
 using StoreOnline.Application.Common.Models;
+using StoreOnline.Application.Orders.Commands.CreateOrder;
 using StoreOnline.Application.Orders.Validations;
 using StoreOnline.Domain.Entities;
 using StoreOnline.Domain.Exceptions;
 
-namespace StoreOnline.Application.Orders.Commands.CreateOrder;
+namespace StoreOnline.Application.Orders.Commands.UpdateOrder;
 
-public record CreateOrderCommand : IRequest<int>, IOrderCommand
+public record UpdateOrderCommand : IRequest<int>, IOrderCommand
 {
+    public int OrderId { get; set; }
     public int CustomerId { get; set; }
     public List<ProductDto> Products { get; set; } = new(); 
 }
 
-public class CreateOrderCommandHandler(IApplicationDbContext context) : IRequestHandler<CreateOrderCommand, int>
+public class UpdateCommandHandler(IApplicationDbContext context) : IRequestHandler<UpdateOrderCommand, int>
 {
-    public async Task<int> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
+    public async Task<int> Handle(UpdateOrderCommand request, CancellationToken cancellationToken)
     {
         Domain.Common.IValidator<IOrderCommand> customerExistsValidator = new CustomerExistsValidator(context);
         Domain.Common.IValidator<IOrderCommand> productOnStockValidator = new ProductOnStockValidator(context);
@@ -28,8 +30,8 @@ public class CreateOrderCommandHandler(IApplicationDbContext context) : IRequest
             throw new ProductExceedLimitOnStockException("Product exceed the limit on stock");
         }
 
-        CreateOrderServices createOrderServices = new(context);
-        Order currentOrder = createOrderServices.CreateOrUpdate(request);
+        UpdateOrderServices updateOrderServices = new(context);
+        Order currentOrder = updateOrderServices.CreateOrUpdate(request);
         await context.SaveChangesAsync(cancellationToken);
         return currentOrder.Id;
     }

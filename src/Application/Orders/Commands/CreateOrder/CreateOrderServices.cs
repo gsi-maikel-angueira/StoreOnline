@@ -3,7 +3,7 @@ using StoreOnline.Domain.Entities;
 
 namespace StoreOnline.Application.Orders.Commands.CreateOrder;
 
-class CreateOrderServices(IApplicationDbContext applicationDbContext) : ICreateOrderServices
+class CreateOrderServices(IApplicationDbContext applicationDbContext) : ICreateOrderServices<CreateOrderCommand>
 {
     public Order CreateOrUpdate(CreateOrderCommand request)
     {
