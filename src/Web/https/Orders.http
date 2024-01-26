@@ -4,16 +4,15 @@ Content-Type: application/json
 
 // CreateOrderCommand
 {
-   "OrderId" : 1,
    "CustomerId" : 1,
    "Products" : [
      {
        "ProductId" : 1,
-       "Quantity" : 5
+       "Quantity" : 20
      },
      {
       "ProductId" : 2,
-      "Quantity" : 5
+      "Quantity" : 2
      }
    ]
 }
