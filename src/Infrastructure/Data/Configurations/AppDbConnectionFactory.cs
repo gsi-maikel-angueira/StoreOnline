@@ -6,7 +6,7 @@ namespace StoreOnline.Infrastructure.Data.Configurations;
 
 public class AppDbConnectionFactory : IDbContextFactory
 {
-    public IApplicationDbContext NewContext()
+    public IApplicationDbContext NewDbContext()
     {
         DbContextOptionsBuilder<ApplicationDbContext> builder = new();
         builder.UseSqlite("DataSource=app.db;Cache=Shared");

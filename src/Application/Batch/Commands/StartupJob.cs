@@ -39,7 +39,7 @@ public class ScheduleJobManager(SaveJobTimerCallback saveJobTimerCallback)
 
 public interface IDbContextFactory
 {
-    IApplicationDbContext NewContext();
+    IApplicationDbContext NewDbContext();
 }
 
 public class SaveJobTimerCallback (IDbContextFactory contextFactory, ILogger<SaveJobTimerCallback> logger)
@@ -49,32 +49,32 @@ public class SaveJobTimerCallback (IDbContextFactory contextFactory, ILogger<Sav
     private const string BatchFileNameFormat = "BatchFile-{0}.txt";
     private static readonly object LockObject = new();
     private static readonly ConcurrentQueue<int> OrdersProcessedItems = new();
-    private static int BatchSequenceNumber = 1;
+    private static int s_batchSequenceNumber = 1;
     
     public void SaveJobFile(object? state)
     {
         string batchFileName = string.Format(BatchFileNameFormat, DateTime.Now.ToString("yyyy'-'MM'-'dd'-'HH'-'mm'-'ss"));
-        IApplicationDbContext applicationDbContext = contextFactory.NewContext();
+        IApplicationDbContext applicationDbContext = contextFactory.NewDbContext();
         OrderUtil orderUtil = new(applicationDbContext);
         lock (LockObject)
         {
-            List<Order> saveOrders;
+            List<Order> fileWriteOrders;
             if (OrdersProcessedItems.IsEmpty)
             {
-                saveOrders = applicationDbContext.Orders.ToList();
+                fileWriteOrders = applicationDbContext.Orders.ToList();
             }
             else
             {
-                saveOrders = 
+                fileWriteOrders = 
                     applicationDbContext.Orders
                         .Where(o => !OrdersProcessedItems.Contains(o.Id))
                         .ToList(); 
             }
             
-            if(saveOrders.Count == 0) return;
+            if(fileWriteOrders.Count == 0) return;
             
-            List<string> orderToSave = new() { $"Batch: {BatchSequenceNumber}" };
-            foreach (Order order in saveOrders)
+            List<string> orderToSave = new() { $"Batch: {s_batchSequenceNumber}" };
+            foreach (Order order in fileWriteOrders)
             {
                 orderToSave.AddRange(orderUtil.ToString(order.Id));
                 orderToSave.Add($"Total: {orderUtil.OrderTotalAmount(order.Id):C}");
@@ -87,8 +87,8 @@ public class SaveJobTimerCallback (IDbContextFactory contextFactory, ILogger<Sav
             string pathToSave = _batchOutputDirectoryPath + batchFileName;
             logger.Log(LogLevel.Information, pathToSave);
             File.WriteAllLines(pathToSave, orderToSave);
-            saveOrders.ForEach(o => OrdersProcessedItems.Enqueue(o.Id));
-            BatchSequenceNumber += 1;
+            fileWriteOrders.ForEach(o => OrdersProcessedItems.Enqueue(o.Id));
+            s_batchSequenceNumber += 1;
         }
     }
 }
