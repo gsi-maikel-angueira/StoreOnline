@@ -11,7 +11,7 @@ class CreateOrderServices(IApplicationDbContext applicationDbContext) : ICreateO
         {
             CreatedDate = DateTime.Today,
             CustomerId = request.CustomerId,
-            OrderNumber = Guid.NewGuid().ToString()
+            OrderNumber = RandomGenerator.NewKey()
         };
         request.Products.ForEach(p =>
         {
@@ -30,5 +30,13 @@ class CreateOrderServices(IApplicationDbContext applicationDbContext) : ICreateO
         });
         applicationDbContext.Orders.Add(entity);
         return entity;
+    }
+}
+
+static class RandomGenerator
+{
+    public static string NewKey()
+    {
+        return Guid.NewGuid().ToString("n")[..8];
     }
 }
