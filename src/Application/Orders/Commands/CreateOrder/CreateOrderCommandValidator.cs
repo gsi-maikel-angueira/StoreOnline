@@ -9,8 +9,9 @@ public class CreateOrderCommandValidator : AbstractValidator<CreateOrderCommand>
         RuleFor(v => v.CustomerId)
             .GreaterThan(0)
             .NotEmpty();
-        RuleFor(v => v.Products)
-            .NotEmpty();
+        RuleForEach(v => v.Products)
+            .NotEmpty()
+            .SetValidator(new ProductValidator());
     }
 }
 
