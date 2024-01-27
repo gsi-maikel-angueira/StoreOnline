@@ -76,6 +76,7 @@ public class UpdateOrderServices(IApplicationDbContext applicationDbContext) : I
 
                 if (savedQuantity > newQuantity)
                 {
+                    orderDetail.Quantity = newQuantity;
                     currentProduct.Stock += (savedQuantity - newQuantity);
                 }
                 else
@@ -86,7 +87,7 @@ public class UpdateOrderServices(IApplicationDbContext applicationDbContext) : I
                         throw new ProductExceedLimitOnStockException("Product exceed the limit on stock");
                     }
 
-                    orderDetail.Quantity = productDto.Quantity;
+                    orderDetail.Quantity = newQuantity;
                     currentProduct.Stock -= value;
                 }
             }
