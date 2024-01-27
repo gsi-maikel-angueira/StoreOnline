@@ -1,6 +1,5 @@
 ﻿using StoreOnline.Application.Common.Interfaces;
 using StoreOnline.Application.Common.Models;
-using StoreOnline.Application.Orders.Commands.CreateOrder;
 using StoreOnline.Application.Orders.Validations;
 using StoreOnline.Domain.Entities;
 using StoreOnline.Domain.Exceptions;

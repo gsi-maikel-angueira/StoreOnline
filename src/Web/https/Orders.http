@@ -2,17 +2,13 @@
 POST {{server}}/api/orders
 Content-Type: application/json
 
-// CreateOrderCommand
-{
-   "CustomerId" : 1,
-   "Products" : [
-     {
-       "ProductId" : 1,
-       "Quantity" : 20
-     },
-     {
-      "ProductId" : 2,
-      "Quantity" : 2
-     }
-   ]
-}
+< ./order.json
+
+###
+
+PUT {{server}}/api/orders/1
+Content-Type: application/json
+
+< ./order.json
+
+###
