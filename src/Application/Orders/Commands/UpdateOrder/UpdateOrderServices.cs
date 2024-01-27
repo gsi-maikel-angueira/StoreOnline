@@ -64,6 +64,10 @@ public class UpdateOrderServices(IApplicationDbContext applicationDbContext) : I
                 };
                 if (currentProduct != null)
                 {
+                    if (currentProduct.Stock < productDto.Quantity)
+                    {
+                        throw new ProductExceedLimitOnStockException("Product exceed the limit on stock"); 
+                    }
                     currentProduct.Stock -= productDto.Quantity;
                 }
                 currentOrder.OrderDetails.Add(newOrderDetails);
