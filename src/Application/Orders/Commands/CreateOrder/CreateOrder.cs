@@ -30,7 +30,7 @@ public class CreateOrderCommandHandler(IApplicationDbContext context) : IRequest
         }
 
         CreateOrderServices createOrderServices = new(context);
-        Order currentOrder = createOrderServices.CreateOrUpdate(request);
+        Order currentOrder = await createOrderServices.CreateOrUpdateAsync(request);
         await context.SaveChangesAsync(cancellationToken);
         return new OrderVm { Id = currentOrder.Id, OrderNumber = currentOrder.OrderNumber };
     }

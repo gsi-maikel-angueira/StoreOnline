@@ -31,7 +31,7 @@ public class UpdateCommandHandler(IApplicationDbContext context) : IRequestHandl
         }
 
         UpdateOrderServices updateOrderServices = new(context);
-        Order currentOrder = updateOrderServices.CreateOrUpdate(request);
+        Order currentOrder = await updateOrderServices.CreateOrUpdateAsync(request);
         await context.SaveChangesAsync(cancellationToken);
         return new OrderVm { Id = currentOrder.Id, OrderNumber = currentOrder.OrderNumber };
     }

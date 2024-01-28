@@ -1,4 +1,5 @@
 using StoreOnline.Application.Common.Interfaces;
+using StoreOnline.Application.Common.Models;
 using StoreOnline.Domain.Entities;
 using StoreOnline.Domain.Exceptions;
 
@@ -6,9 +7,9 @@ namespace StoreOnline.Application.Orders.Commands.UpdateOrder;
 
 public class UpdateOrderServices(IApplicationDbContext applicationDbContext) : ICreateOrderServices<UpdateOrderCommand>
 {
-    public Order CreateOrUpdate(UpdateOrderCommand request)
+    public async Task<Order> CreateOrUpdateAsync(UpdateOrderCommand request)
     {
-        Order? currentOrder = applicationDbContext.Orders.Find(request.OrderId);
+        Order? currentOrder = await applicationDbContext.Orders.FindAsync(request.OrderId);
         if (currentOrder == null)
         {
             throw new OrderNotFoundException("Order not found.");
@@ -18,23 +19,23 @@ public class UpdateOrderServices(IApplicationDbContext applicationDbContext) : I
             throw new UnsupportedOrderException("The Order's customer cannot be changed");
         }
 
-        AddOrUpdateOrderProducts(request, currentOrder);
-        DeleteOrderProducts(request, currentOrder);
+        await AddOrUpdateOrderProductAsync(request, currentOrder);
+        await DeleteOrderProductsAsync(request, currentOrder);
         return currentOrder;
     }
 
-    private void DeleteOrderProducts(UpdateOrderCommand request, Order currentOrder)
+    private async Task DeleteOrderProductsAsync(UpdateOrderCommand request, Order currentOrder)
     {
         List<OrderDetail> deletedOrderDetails = new();
-        List<OrderDetail> orderDetails = applicationDbContext.OrderDetails.Where(order => order.OrderId == currentOrder.Id).ToList();
-        orderDetails.ForEach(orderDetail =>
+        List<OrderDetail> orderDetails = await applicationDbContext.OrderDetails.Where(order => order.OrderId == currentOrder.Id).ToListAsync();
+        orderDetails.ForEach(async orderDetail =>
         {
             if (request.Products.Any(p => orderDetail.ProductId == p.ProductId))
             {
                 return;
             }
 
-            Product? currentProduct = applicationDbContext.Products.Find(orderDetail.ProductId);
+            Product? currentProduct = await applicationDbContext.Products.FindAsync(orderDetail.ProductId);
             if (currentProduct != null)
             {
                 currentProduct.Stock += orderDetail.Quantity;
@@ -47,29 +48,25 @@ public class UpdateOrderServices(IApplicationDbContext applicationDbContext) : I
         });
     }
 
-    private void AddOrUpdateOrderProducts(UpdateOrderCommand request, Order currentOrder)
+    private Task AddOrUpdateOrderProductAsync(UpdateOrderCommand request, Order currentOrder)
     {
-        request.Products.ForEach(productDto =>
+        async void UpdateOrderAsync(ProductDto productDto)
         {
-            OrderDetail? orderDetail = applicationDbContext.OrderDetails.FirstOrDefault(
-                od => od.OrderId == currentOrder.Id && od.ProductId == productDto.ProductId);
-            Product? currentProduct = applicationDbContext.Products.Find(productDto.ProductId);
+            OrderDetail? orderDetail = await applicationDbContext.OrderDetails.FirstOrDefaultAsync(od => od.OrderId == currentOrder.Id && od.ProductId == productDto.ProductId);
+            Product? currentProduct = await applicationDbContext.Products.FindAsync(productDto.ProductId);
             if (orderDetail == null)
             {
-                OrderDetail newOrderDetails = new()
-                {
-                    Quantity = productDto.Quantity, 
-                    Order = currentOrder, 
-                    Product = currentProduct
-                };
+                OrderDetail newOrderDetails = new() { Quantity = productDto.Quantity, Order = currentOrder, Product = currentProduct };
                 if (currentProduct != null)
                 {
                     if (currentProduct.Stock < productDto.Quantity)
                     {
-                        throw new ProductExceedLimitOnStockException("Product exceed the limit on stock"); 
+                        throw new ProductExceedLimitOnStockException("Product exceed the limit on stock");
                     }
+
                     currentProduct.Stock -= productDto.Quantity;
                 }
+
                 currentOrder.OrderDetails.Add(newOrderDetails);
             }
             else
@@ -95,6 +92,9 @@ public class UpdateOrderServices(IApplicationDbContext applicationDbContext) : I
                     currentProduct.Stock -= value;
                 }
             }
-        });
+        }
+
+        request.Products.ForEach(UpdateOrderAsync);
+        return Task.CompletedTask;
     }
 }

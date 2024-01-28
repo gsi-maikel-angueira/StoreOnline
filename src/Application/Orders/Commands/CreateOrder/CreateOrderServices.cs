@@ -1,11 +1,12 @@
 using StoreOnline.Application.Common.Interfaces;
+using StoreOnline.Application.Common.Models;
 using StoreOnline.Domain.Entities;
 
 namespace StoreOnline.Application.Orders.Commands.CreateOrder;
 
 class CreateOrderServices(IApplicationDbContext applicationDbContext) : ICreateOrderServices<CreateOrderCommand>
 {
-    public Order CreateOrUpdate(CreateOrderCommand request)
+    public async Task<Order> CreateOrUpdateAsync(CreateOrderCommand request)
     {
         Order entity = new()
         {
@@ -13,22 +14,21 @@ class CreateOrderServices(IApplicationDbContext applicationDbContext) : ICreateO
             CustomerId = request.CustomerId,
             OrderNumber = RandomGenerator.NewKey()
         };
-        request.Products.ForEach(p =>
+
+        async void AddOrderAsync(ProductDto p)
         {
-            Product? currentProduct = applicationDbContext.Products.Find(p.ProductId);
-            OrderDetail orderDetail = new()
-            {
-                Quantity = p.Quantity, 
-                Order = entity, 
-                Product = currentProduct
-            };
+            Product? currentProduct = await applicationDbContext.Products.FindAsync(p.ProductId);
+            OrderDetail orderDetail = new() { Quantity = p.Quantity, Order = entity, Product = currentProduct };
             if (currentProduct != null)
             {
                 currentProduct.Stock -= p.Quantity;
             }
-            applicationDbContext.OrderDetails.Add(orderDetail);
-        });
-        applicationDbContext.Orders.Add(entity);
+
+            await applicationDbContext.OrderDetails.AddAsync(orderDetail);
+        }
+
+        request.Products.ForEach(AddOrderAsync);
+        await applicationDbContext.Orders.AddAsync(entity);
         return entity;
     }
 }

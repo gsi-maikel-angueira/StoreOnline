@@ -5,7 +5,7 @@ namespace StoreOnline.Application.Orders.Commands;
 
 interface ICreateOrderServices<in T> where T:IOrderCommand
 {
-    Order CreateOrUpdate(T request);
+    Task<Order> CreateOrUpdateAsync(T request);
 }
 
 public interface IOrderCommand
