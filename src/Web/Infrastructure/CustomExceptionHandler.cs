@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using StoreOnline.Application.Common.Exceptions;
+using StoreOnline.Domain.Exceptions;
 
 namespace StoreOnline.Web.Infrastructure;
 
@@ -17,6 +18,11 @@ public class CustomExceptionHandler : IExceptionHandler
                 { typeof(NotFoundException), HandleNotFoundException },
                 { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
                 { typeof(ForbiddenAccessException), HandleForbiddenAccessException },
+                { typeof(ProductExceedLimitOnStockException), HandleCustomException },
+                { typeof(CustomerNotFoundException), HandleCustomException },
+                { typeof(OrderNotFoundException), HandleCustomException },
+                { typeof(ProductNotFoundException), HandleCustomException },
+                { typeof(UnsupportedOrderException), HandleCustomException },
             };
     }
 
@@ -57,6 +63,17 @@ public class CustomExceptionHandler : IExceptionHandler
             Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
             Title = "The specified resource was not found.",
             Detail = exception.Message
+        });
+    }
+    
+    private async Task HandleCustomException(HttpContext httpContext, Exception ex)
+    {
+        httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails()
+        {
+            Status = StatusCodes.Status404NotFound,
+            Title = "Api Custom Exception Details.",
+            Detail = ex.Message
         });
     }
 
