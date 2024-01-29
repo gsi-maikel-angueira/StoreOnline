@@ -7,7 +7,12 @@ public class ProductOnStockValidator(IApplicationDbContext applicationDbContext)
 {
     public bool Validate(IOrderCommand createOrderCommand)
     {
-        return createOrderCommand.Products.All(
-            p => applicationDbContext.Products.Find(p.ProductId)?.Stock > p.Quantity);
+        return createOrderCommand.Products
+            .Select(dto => new 
+                { 
+                    OrderQuantity = dto.Quantity,
+                    Stock = applicationDbContext.Products.Find(dto.ProductId)?.Stock ?? 0
+                })
+            .All(obj =>  obj.Stock >= obj.OrderQuantity);
     }
 }
