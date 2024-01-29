@@ -1,5 +1,6 @@
 using StoreOnline.Application.Common.Interfaces;
 using StoreOnline.Application.Common.Models;
+using StoreOnline.Domain.Common;
 using StoreOnline.Domain.Entities;
 using StoreOnline.Domain.Exceptions;
 
@@ -24,11 +25,20 @@ public class UpdateOrderServices(IApplicationDbContext applicationDbContext) : I
         return currentOrder;
     }
 
-    private async Task DeleteOrderProductsAsync(UpdateOrderCommand request, Order currentOrder)
+    private async Task DeleteOrderProductsAsync(IOrderCommand request, BaseEntity currentOrder)
     {
         List<OrderDetail> deletedOrderDetails = new();
-        List<OrderDetail> orderDetails = await applicationDbContext.OrderDetails.Where(order => order.OrderId == currentOrder.Id).ToListAsync();
-        orderDetails.ForEach(async orderDetail =>
+        var orderDetails = await applicationDbContext.OrderDetails
+            .Where(order => order.OrderId == currentOrder.Id).ToListAsync();
+
+        orderDetails.ForEach(FindDeletedProductAsync);
+        deletedOrderDetails.ForEach(orderDetail =>
+        {
+            applicationDbContext.OrderDetails.Remove(orderDetail);
+        });
+        return;
+
+        async void FindDeletedProductAsync(OrderDetail orderDetail)
         {
             if (request.Products.Any(p => orderDetail.ProductId == p.ProductId))
             {
@@ -41,15 +51,14 @@ public class UpdateOrderServices(IApplicationDbContext applicationDbContext) : I
                 currentProduct.Stock += orderDetail.Quantity;
             }
             deletedOrderDetails.Add(orderDetail);
-        });
-        deletedOrderDetails.ForEach(orderDetail =>
-        {
-            applicationDbContext.OrderDetails.Remove(orderDetail);
-        });
+        }
     }
 
-    private Task AddOrUpdateOrderProductAsync(UpdateOrderCommand request, Order currentOrder)
+    private Task AddOrUpdateOrderProductAsync(IOrderCommand request, Order currentOrder)
     {
+        request.Products.ForEach(UpdateOrderAsync);
+        return Task.CompletedTask;
+
         async void UpdateOrderAsync(ProductDto productDto)
         {
             OrderDetail? orderDetail = await applicationDbContext.OrderDetails.FirstOrDefaultAsync(od => od.OrderId == currentOrder.Id && od.ProductId == productDto.ProductId);
@@ -93,8 +102,5 @@ public class UpdateOrderServices(IApplicationDbContext applicationDbContext) : I
                 }
             }
         }
-
-        request.Products.ForEach(UpdateOrderAsync);
-        return Task.CompletedTask;
     }
 }
