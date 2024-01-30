@@ -1,7 +1,7 @@
 using StoreOnline.Application.Common.Models;
 using StoreOnline.Domain.Entities;
 
-namespace StoreOnline.Application.Orders.Commands;
+namespace StoreOnline.Application.Common.Interfaces;
 
 interface ICreateOrderServices<in T> where T:IOrderCommand
 {

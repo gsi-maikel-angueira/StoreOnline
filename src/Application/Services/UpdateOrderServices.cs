@@ -1,16 +1,21 @@
 using StoreOnline.Application.Common.Interfaces;
 using StoreOnline.Application.Common.Models;
+using StoreOnline.Application.Orders.Commands.UpdateOrder;
 using StoreOnline.Domain.Common;
 using StoreOnline.Domain.Entities;
 using StoreOnline.Domain.Exceptions;
+using StoreOnline.Domain.Repositories;
 
-namespace StoreOnline.Application.Orders.Commands.UpdateOrder;
+namespace StoreOnline.Application.Services;
 
-public class UpdateOrderServices(IApplicationDbContext applicationDbContext) : ICreateOrderServices<UpdateOrderCommand>
+public class UpdateOrderServices(
+    IOrderRepository orderRepository,
+    IProductReadRepository productReadRepository,
+    IOrderDetailRepository orderDetailRepository) : ICreateOrderServices<UpdateOrderCommand>
 {
     public async Task<Order> CreateOrUpdateAsync(UpdateOrderCommand request)
     {
-        Order? currentOrder = await applicationDbContext.Orders.FindAsync(request.OrderId);
+        Order? currentOrder = await orderRepository.FindByIdAsync(request.OrderId);
         if (currentOrder == null)
         {
             throw new OrderNotFoundException("Order not found.");
@@ -28,13 +33,12 @@ public class UpdateOrderServices(IApplicationDbContext applicationDbContext) : I
     private async Task DeleteOrderProductsAsync(IOrderCommand request, BaseEntity currentOrder)
     {
         List<OrderDetail> deletedOrderDetails = new();
-        var orderDetails = await applicationDbContext.OrderDetails
-            .Where(order => order.OrderId == currentOrder.Id).ToListAsync();
+        var orderDetails = await orderDetailRepository.FindByOrderAsync(currentOrder.Id);
 
         orderDetails.ForEach(FindDeletedProductAsync);
         deletedOrderDetails.ForEach(orderDetail =>
         {
-            applicationDbContext.OrderDetails.Remove(orderDetail);
+            orderDetailRepository.Remove(orderDetail);
         });
         return;
 
@@ -45,7 +49,7 @@ public class UpdateOrderServices(IApplicationDbContext applicationDbContext) : I
                 return;
             }
 
-            Product? currentProduct = await applicationDbContext.Products.FindAsync(orderDetail.ProductId);
+            Product? currentProduct = await productReadRepository.FindByIdAsync(orderDetail.ProductId);
             if (currentProduct != null)
             {
                 currentProduct.Stock += orderDetail.Quantity;
@@ -61,8 +65,8 @@ public class UpdateOrderServices(IApplicationDbContext applicationDbContext) : I
 
         async void UpdateOrderAsync(ProductDto productDto)
         {
-            OrderDetail? orderDetail = await applicationDbContext.OrderDetails.FirstOrDefaultAsync(od => od.OrderId == currentOrder.Id && od.ProductId == productDto.ProductId);
-            Product? currentProduct = await applicationDbContext.Products.FindAsync(productDto.ProductId);
+            OrderDetail? orderDetail = await orderDetailRepository.FindByKeys(currentOrder.Id, productDto.ProductId);
+            Product? currentProduct = await productReadRepository.FindByIdAsync(productDto.ProductId);
             if (orderDetail == null)
             {
                 OrderDetail newOrderDetails = new() { Quantity = productDto.Quantity, Order = currentOrder, Product = currentProduct };

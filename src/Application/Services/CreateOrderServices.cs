@@ -1,32 +1,36 @@
 using StoreOnline.Application.Common.Interfaces;
 using StoreOnline.Application.Common.Models;
+using StoreOnline.Application.Orders.Commands.CreateOrder;
 using StoreOnline.Domain.Entities;
 using StoreOnline.Domain.Exceptions;
+using StoreOnline.Domain.Repositories;
 
-namespace StoreOnline.Application.Orders.Commands.CreateOrder;
+namespace StoreOnline.Application.Services;
 
-class CreateOrderServices(IApplicationDbContext applicationDbContext) : ICreateOrderServices<CreateOrderCommand>
+public class CreateOrderServices(
+        IOrderRepository orderRepository,
+        IProductReadRepository productReadRepository,
+        IOrderDetailRepository orderDetailRepository)
+    : ICreateOrderServices<CreateOrderCommand>
 {
     public async Task<Order> CreateOrUpdateAsync(CreateOrderCommand request)
     {
         Order newOrder = new()
         {
-            CreatedDate = DateTime.Today,
-            CustomerId = request.CustomerId,
-            OrderNumber = RandomGenerator.NewKey()
+            CreatedDate = DateTime.Today, CustomerId = request.CustomerId, OrderNumber = RandomGenerator.NewKey()
         };
 
         request.Products.ForEach(AddOrderAsync);
-        await applicationDbContext.Orders.AddAsync(newOrder);
+        await orderRepository.AddAsync(newOrder);
         return newOrder;
 
         async void AddOrderAsync(ProductDto p)
         {
-            Product? currentProduct = await applicationDbContext.Products.FindAsync(p.ProductId);
+            Product? currentProduct = await productReadRepository.FindByIdAsync(p.ProductId);
             if (currentProduct == null) throw new ProductNotFoundException("Product not found.");
             OrderDetail orderDetail = new() { Quantity = p.Quantity, Order = newOrder, Product = currentProduct };
             currentProduct.Stock -= p.Quantity;
-            await applicationDbContext.OrderDetails.AddAsync(orderDetail);
+            await orderDetailRepository.AddAsync(orderDetail);
         }
     }
 }
