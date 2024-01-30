@@ -56,6 +56,7 @@ public class ApplicationDbContextInitializer(ILogger<ApplicationDbContextInitial
         {
             context.Customers.Add(new Customer()
             {
+                Nid = "81100300226",
                 FirstName = "Michael",
                 LastName = "Jackson",
                 CardNumber = "6945-5845-5214-4741"

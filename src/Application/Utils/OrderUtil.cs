@@ -25,7 +25,7 @@ public class OrderUtil (IApplicationDbContext applicationDbContext)
                     orderDetail.Order!.OrderNumber, 
                     orderDetail.ProductId, 
                     (orderDetail.Quantity * orderDetail.Product!.Price), 
-                    orderDetail.Order!.Customer!.Id)));
+                    orderDetail.Order!.Customer!.Nid)));
         return result;
     }
 }
