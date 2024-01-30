@@ -1,6 +1,6 @@
 namespace StoreOnline.Domain.Common;
 
-public interface IValidator<in T>
+public interface IDomainValidator<in T>
 {
     Task<bool> Validate(T data);
 }

@@ -1,11 +1,12 @@
 using StoreOnline.Application.Common.Interfaces;
 using StoreOnline.Application.Common.Models;
+using StoreOnline.Domain.Common;
 using StoreOnline.Domain.Entities;
 using StoreOnline.Domain.Repositories;
 
 namespace StoreOnline.Application.Validations;
 
-public class ProductOnStockValidator(IProductReadRepository productReadRepository) : Domain.Common.IValidator<IOrderCommand>
+public class ProductOnStockValidator(IProductReadRepository productReadRepository) : IDomainValidator<IOrderCommand>
 {
     public async Task<bool> Validate(IOrderCommand createOrderCommand)
     {
