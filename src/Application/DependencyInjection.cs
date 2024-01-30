@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using StoreOnline.Application.Common.Behaviours;
 using StoreOnline.Application.Services;
+using StoreOnline.Application.Validations;
 
 namespace StoreOnline.Application;
 
@@ -21,6 +22,8 @@ public static class DependencyInjection
 
         services.AddScoped<CreateOrderServices>();
         services.AddScoped<UpdateOrderServices>();
+        services.AddScoped<CustomerExistsValidator>(); 
+        services.AddScoped<ProductOnStockValidator>(); 
         return services;
     }
 }

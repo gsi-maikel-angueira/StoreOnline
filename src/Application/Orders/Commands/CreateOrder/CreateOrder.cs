@@ -5,7 +5,6 @@ using StoreOnline.Application.Services;
 using StoreOnline.Application.Validations;
 using StoreOnline.Domain.Entities;
 using StoreOnline.Domain.Exceptions;
-using StoreOnline.Domain.Repositories;
 
 namespace StoreOnline.Application.Orders.Commands.CreateOrder;
 
@@ -17,15 +16,13 @@ public record CreateOrderCommand : IRequest<OrderVm>, IOrderCommand
 
 public class CreateOrderCommandHandler(
         IApplicationDbContext context,
-        ICustomerReadRepository customerReadRepository,
-        IProductReadRepository productReadRepository,
+        CustomerExistsValidator customerExistsValidator,
+        ProductOnStockValidator productOnStockValidator,
         CreateOrderServices createOrderServices)
     : IRequestHandler<CreateOrderCommand, OrderVm>
 {
     public async Task<OrderVm> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
     {
-        CustomerExistsValidator customerExistsValidator = new(customerReadRepository);
-        ProductOnStockValidator productOnStockValidator = new(productReadRepository);
         bool isCustomerValid = await customerExistsValidator.Validate(request);
         if (!isCustomerValid)
         {
