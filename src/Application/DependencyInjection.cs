@@ -1,6 +1,9 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using StoreOnline.Application.Common.Behaviours;
+using StoreOnline.Application.Common.Interfaces;
+using StoreOnline.Application.Orders.Commands.CreateOrder;
+using StoreOnline.Application.Orders.Commands.UpdateOrder;
 using StoreOnline.Application.Services;
 using StoreOnline.Application.Validations;
 
@@ -20,8 +23,8 @@ public static class DependencyInjection
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
         });
 
-        services.AddScoped<CreateOrderServices>();
-        services.AddScoped<UpdateOrderServices>();
+        services.AddKeyedScoped<ICreateOrderServices<CreateOrderCommand>, CreateOrderServices>(nameof(CreateOrderServices));
+        services.AddKeyedScoped<ICreateOrderServices<UpdateOrderCommand>,UpdateOrderServices>(nameof(UpdateOrderServices));
         services.AddScoped<CustomerExistsValidator>(); 
         services.AddScoped<ProductOnStockValidator>(); 
         return services;

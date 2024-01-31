@@ -1,4 +1,5 @@
-﻿using StoreOnline.Application.Common.Interfaces;
+﻿using Microsoft.Extensions.DependencyInjection;
+using StoreOnline.Application.Common.Interfaces;
 using StoreOnline.Application.Common.Models;
 using StoreOnline.Application.Payloads;
 using StoreOnline.Application.Services;
@@ -17,9 +18,9 @@ public record UpdateOrderCommand : IRequest<OrderVm>, IOrderCommand
 
 public class UpdateCommandHandler(
         IApplicationDbContext context,
-        UpdateOrderServices updateOrderServices,
         CustomerExistsValidator customerExistsValidator,
-        ProductOnStockValidator productOnStockValidator)
+        ProductOnStockValidator productOnStockValidator,
+        [FromKeyedServices(nameof(UpdateOrderServices))] ICreateOrderServices<UpdateOrderCommand> updateOrderServices)
     : IRequestHandler<UpdateOrderCommand, OrderVm>
 {
     public async Task<OrderVm> Handle(UpdateOrderCommand request, CancellationToken cancellationToken)

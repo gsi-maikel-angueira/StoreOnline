@@ -3,7 +3,7 @@ using StoreOnline.Domain.Entities;
 
 namespace StoreOnline.Application.Common.Interfaces;
 
-interface ICreateOrderServices<in T> where T:IOrderCommand
+public interface ICreateOrderServices<in T> where T:IOrderCommand
 {
     Task<Order> CreateOrUpdateAsync(T request);
 }

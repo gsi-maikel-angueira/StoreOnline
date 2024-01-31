@@ -1,4 +1,5 @@
-﻿using StoreOnline.Application.Common.Interfaces;
+﻿using Microsoft.Extensions.DependencyInjection;
+using StoreOnline.Application.Common.Interfaces;
 using StoreOnline.Application.Common.Models;
 using StoreOnline.Application.Payloads;
 using StoreOnline.Application.Services;
@@ -18,7 +19,7 @@ public class CreateOrderCommandHandler(
         IApplicationDbContext context,
         CustomerExistsValidator customerExistsValidator,
         ProductOnStockValidator productOnStockValidator,
-        CreateOrderServices createOrderServices)
+        [FromKeyedServices(nameof(CreateOrderServices))] ICreateOrderServices<CreateOrderCommand> createOrderServices)
     : IRequestHandler<CreateOrderCommand, OrderVm>
 {
     public async Task<OrderVm> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
