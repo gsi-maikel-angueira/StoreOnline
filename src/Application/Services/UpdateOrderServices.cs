@@ -25,10 +25,10 @@ public class UpdateOrderServices(
             throw new UnsupportedOrderException("The Order's customer cannot be changed");
         }
 
-        var addOrUpdateOrderProductAsync = AddOrUpdateOrderProductAsync(request, currentOrder);
-        var deleteOrderProductsAsync = DeleteOrderProductsAsync(request, currentOrder);
-        await addOrUpdateOrderProductAsync;
-        await deleteOrderProductsAsync;
+        var addOrUpdateOrderTask = AddOrUpdateOrderProductAsync(request, currentOrder);
+        var deleteOrderTask = DeleteOrderProductsAsync(request, currentOrder);
+        await addOrUpdateOrderTask;
+        await deleteOrderTask;
         return currentOrder;
     }
 
