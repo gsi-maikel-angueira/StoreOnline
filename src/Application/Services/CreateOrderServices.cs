@@ -21,8 +21,8 @@ public class CreateOrderServices(
         };
 
         request.Products.ForEach(AddOrderAsync);
-        await orderRepository.AddAsync(newOrder);
-        return newOrder;
+        var savedOrder = await orderRepository.AddAsync(newOrder);
+        return savedOrder;
 
         async void AddOrderAsync(ProductDto p)
         {
@@ -30,6 +30,7 @@ public class CreateOrderServices(
             if (currentProduct == null) throw new ProductNotFoundException("Product not found.");
             OrderDetail orderDetail = new() { Quantity = p.Quantity, Order = newOrder, Product = currentProduct };
             currentProduct.Stock -= p.Quantity;
+            newOrder.OrderDetails.Add(orderDetail);
             await orderDetailRepository.AddAsync(orderDetail);
         }
     }
