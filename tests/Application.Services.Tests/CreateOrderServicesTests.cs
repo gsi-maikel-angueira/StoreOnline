@@ -27,27 +27,6 @@ public class CreateOrderServicesTests
     }
 
     [Test]
-    public void ShouldThrowProductNotFoundException()
-    {
-        _mockOrderRepository.Setup(m => m.AddAsync(It.IsAny<Order>()))
-            .ReturnsAsync(CreatedOrder);
-        _mockProductReadRepository.Setup(m => m.FindByIdAsync(It.IsAny<int>())).ReturnsAsync(() => null);
-        CreateOrderServices createOrderServices =
-            new(
-                _mockOrderRepository.Object,
-                _mockProductReadRepository.Object,
-                _mockOrderDetailRepository.Object);
-
-        CreateOrderCommand createCommandRequest = new()
-        {
-            CustomerId = 1, Products = new List<ProductDto> { ProductDtoA, ProductDtoB }
-        };
-        Assert.ThrowsAsync<ProductNotFoundException>(
-            () => createOrderServices.CreateOrUpdateAsync(createCommandRequest));
-        _mockProductReadRepository.Verify(repository => repository.FindByIdAsync(It.IsAny<int>()), Times.Once);
-    }
-    
-    [Test]
     public async Task ShouldCreateNewOrderNotEmptyProducts()
     {
         _mockOrderRepository.Setup(m => m.AddAsync(It.IsAny<Order>()))

@@ -6,6 +6,7 @@ using StoreOnline.Application.Orders.Commands.CreateOrder;
 using StoreOnline.Application.Orders.Commands.UpdateOrder;
 using StoreOnline.Application.Services;
 using StoreOnline.Application.Validations;
+using StoreOnline.Domain.Common;
 
 namespace StoreOnline.Application;
 
@@ -17,16 +18,18 @@ public static class DependencyInjection
 
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-        services.AddMediatR(cfg => {
+        services.AddMediatR(cfg =>
+        {
             cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
         });
 
-        services.AddKeyedScoped<ICreateOrderServices<CreateOrderCommand>, CreateOrderServices>(nameof(CreateOrderServices));
-        services.AddKeyedScoped<ICreateOrderServices<UpdateOrderCommand>,UpdateOrderServices>(nameof(UpdateOrderServices));
-        services.AddScoped<CustomerExistsValidator>(); 
-        services.AddScoped<ProductOnStockValidator>(); 
+        services.AddKeyedScoped<ICreateOrderServices<CreateOrderCommand>, CreateOrderServices>(
+            nameof(CreateOrderServices));
+        services.AddKeyedScoped<ICreateOrderServices<UpdateOrderCommand>, UpdateOrderServices>(
+            nameof(UpdateOrderServices));
+        services.AddScoped<IDomainValidator<IOrderCommand>, OrderValidatorManager>();
         return services;
     }
 }
