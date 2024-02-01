@@ -14,7 +14,7 @@ public class OrderUtil (IApplicationDbContext applicationDbContext)
             .Sum();
     }
 
-    public List<string> ToString(int orderId)
+    public IEnumerable<string> ToString(int orderId)
     {
         List <string> result = new();
         if(!applicationDbContext.Orders.Any(o => o.Id == orderId))

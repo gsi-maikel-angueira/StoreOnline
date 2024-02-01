@@ -35,7 +35,7 @@ public class CreateOrderServices(
     }
 }
 
-static class RandomGenerator
+public static class RandomGenerator
 {
     public static string NewKey()
     {
