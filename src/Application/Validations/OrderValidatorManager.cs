@@ -1,4 +1,5 @@
 using StoreOnline.Application.Common.Interfaces;
+using StoreOnline.Application.Orders.Commands.UpdateOrder;
 using StoreOnline.Domain.Common;
 using StoreOnline.Domain.Exceptions;
 using StoreOnline.Domain.Repositories;
@@ -26,12 +27,16 @@ public class OrderValidatorManager(ICustomerReadRepository customerReadRepositor
             throw new ProductNotFoundException("Any Product doesn't found");
         }
 
+        if (data is UpdateOrderCommand)
+        {
+            return await Task.FromResult(true);
+        }
+
         bool onStockProductValid = await productOnStockValidator.Validate(data);
         if (!onStockProductValid)
         {
             throw new ProductExceedLimitOnStockException("Product exceed the limit on stock");
         }
-
         return await Task.FromResult(true);
     }
 }
