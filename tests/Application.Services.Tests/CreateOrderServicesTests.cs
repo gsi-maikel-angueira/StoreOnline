@@ -77,11 +77,13 @@ public class CreateOrderServicesTests
             CustomerId = 1, Products = new List<ProductDto> { ProductDtoA, ProductDtoB }
         };
 
+        var stockA = ProductA.Stock;
+        var stockB = ProductB.Stock;
         var newOrder = await createOrderServices.CreateOrUpdateAsync(createCommandRequest);
         _mockProductReadRepository.Verify(repository => repository.FindByIdAsync(It.IsAny<int>()), Times.Exactly(2));
         newOrder.Should().NotBeNull();
         newOrder.OrderDetails.Should().NotBeEmpty();
-        ProductA.Stock.Should().Be(45);
-        ProductB.Stock.Should().Be(10);
+        ProductA.Stock.Should().Be(stockA - ProductDtoA.Quantity);
+        ProductB.Stock.Should().Be(stockB - ProductDtoB.Quantity);
     }
 }
