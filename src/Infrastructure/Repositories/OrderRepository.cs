@@ -14,23 +14,11 @@ public class OrderRepository(IApplicationDbContext applicationDbContext) : IOrde
         return entityEntry.Entity;
     }
 
-    public void Remove(Order entity)
-    {
-        applicationDbContext.Orders.Remove(entity);
-    }
+    public void Remove(Order entity) => applicationDbContext.Orders.Remove(entity);
 
-    public async Task<bool> ExistsAsync(int key)
-    {
-        return await applicationDbContext.Orders.AnyAsync(o => o.Id == key);
-    }
+    public async Task<bool> ExistsAsync(int key) => await applicationDbContext.Orders.AnyAsync(o => o.Id == key);
 
-    public async Task<Order?> FindByIdAsync(int key)
-    {
-        return await applicationDbContext.Orders.FindAsync(key);
-    }
+    public async Task<Order?> FindByIdAsync(int key) => await applicationDbContext.Orders.FindAsync(key);
 
-    public async Task<IEnumerable<Order>> FindAllAsync()
-    {
-        return await applicationDbContext.Orders.ToListAsync();
-    }
+    public async Task<IEnumerable<Order>> FindAllAsync() => await applicationDbContext.Orders.ToListAsync();
 }

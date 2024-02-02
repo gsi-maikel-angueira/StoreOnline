@@ -14,35 +14,18 @@ public class OrderDetailRepository(IApplicationDbContext applicationDbContext) :
         return entityEntry.Entity;
     }
 
-    public void Remove(OrderDetail entity)
-    {
-        applicationDbContext.OrderDetails.Remove(entity);
-    }
+    public void Remove(OrderDetail entity) => applicationDbContext.OrderDetails.Remove(entity);
 
-    public async Task<bool> ExistsAsync(int key)
-    {
-        return await applicationDbContext.OrderDetails.AnyAsync(od => od.Id == key);
-    }
+    public async Task<bool> ExistsAsync(int key) => await applicationDbContext.OrderDetails.AnyAsync(od => od.Id == key);
 
-    public async Task<OrderDetail?> FindByKeys(int orderId, int productId)
-    {
-        return await applicationDbContext.OrderDetails
+    public async Task<OrderDetail?> FindByKeys(int orderId, int productId) =>
+        await applicationDbContext.OrderDetails
             .Where(od => od.OrderId == orderId && od.ProductId == productId)
             .FirstOrDefaultAsync();
-    }
 
-    public async Task<List<OrderDetail>> FindByOrderAsync(int orderId)
-    {
-        return await applicationDbContext.OrderDetails.Where(od => od.OrderId == orderId).ToListAsync();
-    }
+    public async Task<List<OrderDetail>> FindByOrderAsync(int orderId) => await applicationDbContext.OrderDetails.Where(od => od.OrderId == orderId).ToListAsync();
 
-    public async Task<OrderDetail?> FindByIdAsync(int key)
-    {
-        return await applicationDbContext.OrderDetails.FindAsync(key);
-    }
+    public async Task<OrderDetail?> FindByIdAsync(int key) => await applicationDbContext.OrderDetails.FindAsync(key);
 
-    public async Task<IEnumerable<OrderDetail>> FindAllAsync()
-    {
-        return await applicationDbContext.OrderDetails.ToListAsync();
-    }
+    public async Task<IEnumerable<OrderDetail>> FindAllAsync() => await applicationDbContext.OrderDetails.ToListAsync();
 }

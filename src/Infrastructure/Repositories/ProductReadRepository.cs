@@ -7,18 +7,9 @@ namespace StoreOnline.Infrastructure.Repositories;
 
 public class ProductReadRepository(IApplicationDbContext applicationDbContext) : IProductReadRepository
 {
-    public async Task<bool> ExistsAsync(int key)
-    {
-        return await applicationDbContext.Products.AnyAsync(p => p.Id == key);
-    }
+    public async Task<bool> ExistsAsync(int key) => await applicationDbContext.Products.AnyAsync(p => p.Id == key);
 
-    public async Task<Product?> FindByIdAsync(int key)
-    {
-        return await applicationDbContext.Products.FindAsync(key);
-    }
+    public async Task<Product?> FindByIdAsync(int key) => await applicationDbContext.Products.FindAsync(key);
 
-    public async Task<IEnumerable<Product>> FindAllAsync()
-    {
-        return await applicationDbContext.Products.ToListAsync();
-    }
+    public async Task<IEnumerable<Product>> FindAllAsync() => await applicationDbContext.Products.ToListAsync();
 }
