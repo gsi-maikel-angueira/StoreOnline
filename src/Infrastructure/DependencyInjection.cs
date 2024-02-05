@@ -29,10 +29,9 @@ public static class DependencyInjection
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<ApplicationDbContextInitializer>();
-        services.AddScoped<AppDbConnectionFactory>();
         services.AddScoped<SaveJobTimerCallback>();
         services.AddScoped<ScheduleJobManager>();
-        services.AddScoped<IDbContextFactory>(provider => provider.GetRequiredService<AppDbConnectionFactory>());
+        services.AddSingleton<IDbContextFactory, AppDbConnectionFactory>();
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<ICustomerReadRepository, CustomerReadRepository>();
         services.AddScoped<IProductReadRepository, ProductReadRepository>();
