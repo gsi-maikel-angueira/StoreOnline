@@ -18,12 +18,12 @@ public class ScheduleJobHandler(ScheduleJobManager scheduleJobManager) : IReques
 
 public class ScheduleJobManager(SaveJobTimerCallback saveJobTimerCallback)
 {
-    
     private readonly Dictionary<string, Timer> RunningTimers = new();
 
     public Task<string> StartJob(int timeInMinutes)
     {
-        Timer timer = new(saveJobTimerCallback.SaveJobFile, JobStatus.Running, TimeSpan.Zero, TimeSpan.FromMinutes(timeInMinutes));
+        Timer timer = new(saveJobTimerCallback.SaveJobFile, JobStatus.Running, TimeSpan.Zero,
+            TimeSpan.FromMinutes(timeInMinutes));
         string key = Guid.NewGuid().ToString();
         RunningTimers.Add(key, timer);
         return Task.FromResult(key);
@@ -42,18 +42,19 @@ public interface IDbContextFactory
     IApplicationDbContext NewDbContext();
 }
 
-public class SaveJobTimerCallback (IDbContextFactory contextFactory, ILogger<SaveJobTimerCallback> logger)
+public class SaveJobTimerCallback(IDbContextFactory contextFactory, ILogger<SaveJobTimerCallback> logger)
 {
     private const string BatchFolderPath = "/BatchFileOutput/";
-    private readonly string _batchOutputDirectoryPath = Directory.GetCurrentDirectory() + BatchFolderPath;  
+    private readonly string _batchOutputDirectoryPath = Directory.GetCurrentDirectory() + BatchFolderPath;
     private const string BatchFileNameFormat = "BatchFile-{0}.txt";
     private static readonly object LockObject = new();
     private static readonly ConcurrentQueue<int> OrdersProcessedItems = new();
     private static int s_batchSequenceNumber = 1;
-    
+
     public void SaveJobFile(object? state)
     {
-        string batchFileName = string.Format(BatchFileNameFormat, DateTime.Now.ToString("yyyy'-'MM'-'dd'-'HH'-'mm'-'ss"));
+        string batchFileName =
+            string.Format(BatchFileNameFormat, DateTime.Now.ToString("yyyy'-'MM'-'dd'-'HH'-'mm'-'ss"));
         IApplicationDbContext applicationDbContext = contextFactory.NewDbContext();
         OrderUtil orderUtil = new(applicationDbContext);
         lock (LockObject)
@@ -65,14 +66,14 @@ public class SaveJobTimerCallback (IDbContextFactory contextFactory, ILogger<Sav
             }
             else
             {
-                fileWriteOrders = 
+                fileWriteOrders =
                     applicationDbContext.Orders
                         .Where(o => !OrdersProcessedItems.Contains(o.Id))
-                        .ToList(); 
+                        .ToList();
             }
-            
-            if(fileWriteOrders.Count == 0) return;
-            
+
+            if (fileWriteOrders.Count == 0) return;
+
             List<string> orderToSave = new() { $"Batch: {s_batchSequenceNumber}" };
             foreach (Order order in fileWriteOrders)
             {
@@ -84,6 +85,7 @@ public class SaveJobTimerCallback (IDbContextFactory contextFactory, ILogger<Sav
             {
                 Directory.CreateDirectory(_batchOutputDirectoryPath);
             }
+
             string pathToSave = _batchOutputDirectoryPath + batchFileName;
             logger.Log(LogLevel.Information, pathToSave);
             File.WriteAllLines(pathToSave, orderToSave);
@@ -97,5 +99,3 @@ public enum JobStatus
 {
     Stop, Running, Waiting
 }
-
-

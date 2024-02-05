@@ -3,10 +3,8 @@ using StoreOnline.Application.Common.Interfaces;
 using StoreOnline.Application.Common.Models;
 using StoreOnline.Application.Payloads;
 using StoreOnline.Application.Services;
-using StoreOnline.Application.Validations;
 using StoreOnline.Domain.Common;
 using StoreOnline.Domain.Entities;
-using StoreOnline.Domain.Exceptions;
 
 namespace StoreOnline.Application.Orders.Commands.UpdateOrder;
 
