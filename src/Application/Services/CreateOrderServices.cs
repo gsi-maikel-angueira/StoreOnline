@@ -26,7 +26,7 @@ public class CreateOrderServices(
 
         async void AddOrderAsync(ProductDto p)
         {
-            Product? currentProduct = await productReadRepository.FindByIdAsync(p.ProductId);
+            Product? currentProduct = await productReadRepository.FindSingleAsync(p.ProductId);
             if (currentProduct == null) throw new ProductNotFoundException("Product not found.");
             OrderDetail orderDetail = new() { Quantity = p.Quantity, Order = newOrder, Product = currentProduct };
             currentProduct.Stock -= p.Quantity;

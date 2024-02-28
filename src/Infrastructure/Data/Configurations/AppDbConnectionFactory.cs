@@ -5,7 +5,7 @@ using StoreOnline.Application.Common.Interfaces;
 
 namespace StoreOnline.Infrastructure.Data.Configurations;
 
-public class AppDbConnectionFactory(IConfiguration configuration) : IDbContextFactory
+public class AppDbContextFactory(IConfiguration configuration) : IDbContextFactory
 {
     public IApplicationDbContext NewDbContext()
     {

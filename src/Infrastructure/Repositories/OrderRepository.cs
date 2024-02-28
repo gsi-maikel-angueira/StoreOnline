@@ -18,7 +18,7 @@ public class OrderRepository(IApplicationDbContext applicationDbContext) : IOrde
 
     public async Task<bool> ExistsAsync(int key) => await applicationDbContext.Orders.AnyAsync(o => o.Id == key);
 
-    public async Task<Order?> FindByIdAsync(int key) => await applicationDbContext.Orders.FindAsync(key);
+    public async Task<Order?> FindSingleAsync(int key) => await applicationDbContext.Orders.FindAsync(key);
 
     public async Task<IEnumerable<Order>> FindAllAsync() => await applicationDbContext.Orders.ToListAsync();
 }

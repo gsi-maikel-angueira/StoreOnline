@@ -15,7 +15,7 @@ public class UpdateOrderServices(
 {
     public async Task<Order> CreateOrUpdateAsync(UpdateOrderCommand request)
     {
-        Order? currentOrder = await orderRepository.FindByIdAsync(request.OrderId);
+        Order? currentOrder = await orderRepository.FindSingleAsync(request.OrderId);
         if (currentOrder == null)
         {
             throw new OrderNotFoundException("Order not found.");
@@ -35,7 +35,7 @@ public class UpdateOrderServices(
     private async Task DeleteOrderProductsAsync(IOrderCommand request, BaseEntity currentOrder)
     {
         List<OrderDetail> deletedOrderDetails = new();
-        var orderDetails = await orderDetailRepository.FindByOrderAsync(currentOrder.Id);
+        var orderDetails = await orderDetailRepository.FindAsync(currentOrder.Id);
 
         orderDetails.ForEach(FindDeletedProductAsync);
         deletedOrderDetails.ForEach(orderDetail =>
@@ -51,7 +51,7 @@ public class UpdateOrderServices(
                 return;
             }
 
-            Product? currentProduct = await productReadRepository.FindByIdAsync(orderDetail.ProductId);
+            Product? currentProduct = await productReadRepository.FindSingleAsync(orderDetail.ProductId);
             if (currentProduct != null)
             {
                 currentProduct.Stock += orderDetail.Quantity;
@@ -67,8 +67,8 @@ public class UpdateOrderServices(
 
         async void UpdateOrderAsync(ProductDto productDto)
         {
-            OrderDetail? orderDetail = await orderDetailRepository.FindByKeys(currentOrder.Id, productDto.ProductId);
-            Product? currentProduct = await productReadRepository.FindByIdAsync(productDto.ProductId);
+            OrderDetail? orderDetail = await orderDetailRepository.FindSingleAsync(currentOrder.Id, productDto.ProductId);
+            Product? currentProduct = await productReadRepository.FindSingleAsync(productDto.ProductId);
             if (orderDetail == null)
             {
                 OrderDetail newOrderDetails = new() { Quantity = productDto.Quantity, Order = currentOrder, Product = currentProduct };

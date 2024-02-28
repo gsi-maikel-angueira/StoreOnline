@@ -5,6 +5,6 @@ namespace StoreOnline.Domain.Repositories;
 
 public interface IOrderDetailRepository : IRepository<OrderDetail>, IReadRepository<int, OrderDetail>
 {
-    public Task<OrderDetail?> FindByKeys(int orderId, int productId);
-    public Task<List<OrderDetail>> FindByOrderAsync(int orderId);
+    public Task<OrderDetail?> FindSingleAsync(int orderId, int productId);
+    public Task<List<OrderDetail>> FindAsync(int orderId);
 }

@@ -12,7 +12,7 @@ public class ProductOnStockValidator(IProductReadRepository productReadRepositor
     {
         foreach (ProductDto dto in createOrderCommand.Products)
         {
-            Product? currentProduct = await productReadRepository.FindByIdAsync(dto.ProductId);
+            Product? currentProduct = await productReadRepository.FindSingleAsync(dto.ProductId);
             bool isStockLess = (currentProduct?.Stock ?? 0) < dto.Quantity;
             if (isStockLess)
             {

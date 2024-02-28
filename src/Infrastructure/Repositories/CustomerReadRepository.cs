@@ -9,7 +9,7 @@ public class CustomerReadRepository(IApplicationDbContext applicationDbContext) 
 {
     public async Task<bool> ExistsAsync(int key) => await applicationDbContext.Customers.AnyAsync(c => c.Id == key);
 
-    public async Task<Customer?> FindByIdAsync(int key) => await applicationDbContext.Customers.FindAsync(key);
+    public async Task<Customer?> FindSingleAsync(int key) => await applicationDbContext.Customers.FindAsync(key);
 
     public async Task<IEnumerable<Customer>> FindAllAsync() => await applicationDbContext.Customers.ToListAsync();
 }

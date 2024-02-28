@@ -31,8 +31,8 @@ public class CreateOrderServicesTests
     {
         _mockOrderRepository.Setup(m => m.AddAsync(It.IsAny<Order>()))
             .ReturnsAsync(CreatedOrder);
-        _mockProductReadRepository.Setup(m => m.FindByIdAsync(ProductA.Id)).ReturnsAsync(() =>ProductA);
-        _mockProductReadRepository.Setup(m => m.FindByIdAsync(ProductB.Id)).ReturnsAsync(() =>ProductB);
+        _mockProductReadRepository.Setup(m => m.FindSingleAsync(ProductA.Id)).ReturnsAsync(() =>ProductA);
+        _mockProductReadRepository.Setup(m => m.FindSingleAsync(ProductB.Id)).ReturnsAsync(() =>ProductB);
         _mockOrderDetailRepository.Setup(m => m.AddAsync(It.Is<OrderDetail>(o => o.Product!.Id == ProductA.Id)))
             .ReturnsAsync(() => OrderDetailA);
         _mockOrderDetailRepository.Setup(m => m.AddAsync(It.Is<OrderDetail>(o => o.Product!.Id == ProductB.Id)))
@@ -49,7 +49,7 @@ public class CreateOrderServicesTests
         };
 
         var newOrder = await createOrderServices.CreateOrUpdateAsync(createCommandRequest);
-        _mockProductReadRepository.Verify(repository => repository.FindByIdAsync(It.IsAny<int>()), Times.Exactly(2));
+        _mockProductReadRepository.Verify(repository => repository.FindSingleAsync(It.IsAny<int>()), Times.Exactly(2));
         newOrder.Should().NotBeNull();
         newOrder.OrderDetails.Should().NotBeEmpty();
         newOrder.OrderDetails.Count.Should().Be(2);
@@ -60,8 +60,8 @@ public class CreateOrderServicesTests
     {
         _mockOrderRepository.Setup(m => m.AddAsync(It.IsAny<Order>()))
             .ReturnsAsync(CreatedOrder);
-        _mockProductReadRepository.Setup(m => m.FindByIdAsync(ProductA.Id)).ReturnsAsync(() =>ProductA);
-        _mockProductReadRepository.Setup(m => m.FindByIdAsync(ProductB.Id)).ReturnsAsync(() =>ProductB);
+        _mockProductReadRepository.Setup(m => m.FindSingleAsync(ProductA.Id)).ReturnsAsync(() =>ProductA);
+        _mockProductReadRepository.Setup(m => m.FindSingleAsync(ProductB.Id)).ReturnsAsync(() =>ProductB);
         _mockOrderDetailRepository.Setup(m => m.AddAsync(It.Is<OrderDetail>(o => o.Product!.Id == ProductA.Id)))
             .ReturnsAsync(() => OrderDetailA);
         _mockOrderDetailRepository.Setup(m => m.AddAsync(It.Is<OrderDetail>(o => o.Product!.Id == ProductB.Id)))
@@ -80,7 +80,7 @@ public class CreateOrderServicesTests
         var stockA = ProductA.Stock;
         var stockB = ProductB.Stock;
         var newOrder = await createOrderServices.CreateOrUpdateAsync(createCommandRequest);
-        _mockProductReadRepository.Verify(repository => repository.FindByIdAsync(It.IsAny<int>()), Times.Exactly(2));
+        _mockProductReadRepository.Verify(repository => repository.FindSingleAsync(It.IsAny<int>()), Times.Exactly(2));
         newOrder.Should().NotBeNull();
         newOrder.OrderDetails.Should().NotBeEmpty();
         ProductA.Stock.Should().Be(stockA - ProductDtoA.Quantity);

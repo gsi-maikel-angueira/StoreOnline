@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using StoreOnline.Application.Common.Interfaces;
 using StoreOnline.Application.Utils;
 using StoreOnline.Domain.Entities;
+using StoreOnline.Domain.Extensions;
 
 namespace StoreOnline.Application.Batch.Commands;
 
@@ -72,7 +73,7 @@ public class SaveJobTimerCallback(IDbContextFactory contextFactory, ILogger<Save
                         .ToList();
             }
 
-            if (fileWriteOrders.Count == 0) return;
+            if (fileWriteOrders.IsEmpty()) return;
 
             List<string> orderToSave = new() { $"Batch: {s_batchSequenceNumber}" };
             foreach (Order order in fileWriteOrders)

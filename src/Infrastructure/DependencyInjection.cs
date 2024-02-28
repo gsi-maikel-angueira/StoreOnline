@@ -31,7 +31,7 @@ public static class DependencyInjection
         services.AddScoped<ApplicationDbContextInitializer>();
         services.AddScoped<SaveJobTimerCallback>();
         services.AddScoped<ScheduleJobManager>();
-        services.AddSingleton<IDbContextFactory, AppDbConnectionFactory>();
+        services.AddSingleton<IDbContextFactory, AppDbContextFactory>();
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<ICustomerReadRepository, CustomerReadRepository>();
         services.AddScoped<IProductReadRepository, ProductReadRepository>();

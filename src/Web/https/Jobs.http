@@ -1,3 +1,3 @@
 # POST Order
-POST {{server}}/api/jobs/1
+POST {{server}}/api/jobs/2
 Content-Type: application/json
